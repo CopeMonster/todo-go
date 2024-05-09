@@ -10,7 +10,7 @@ import (
 	"todo-go/models"
 )
 
-type AutoClaims struct {
+type AuthClaims struct {
 	jwt.StandardClaims
 	User *models.User `json:"user"`
 }
@@ -65,7 +65,7 @@ func (a *AuthUseCase) SignIn(ctx context.Context, username string, password stri
 		return "", auth.ErrUserNotFound
 	}
 
-	claims := AutoClaims{
+	claims := AuthClaims{
 		User: user,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: jwt.At(time.Now().Add(a.expireDuration)),
@@ -78,7 +78,7 @@ func (a *AuthUseCase) SignIn(ctx context.Context, username string, password stri
 }
 
 func (a *AuthUseCase) ParseToken(ctx context.Context, accessToken string) (*models.User, error) {
-	token, err := jwt.ParseWithClaims(accessToken, &AutoClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -90,7 +90,7 @@ func (a *AuthUseCase) ParseToken(ctx context.Context, accessToken string) (*mode
 		return nil, err
 	}
 
-	if claims, ok := token.Claims.(*AutoClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(*AuthClaims); ok && token.Valid {
 		return claims.User, nil
 	}
 
