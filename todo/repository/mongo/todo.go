@@ -128,14 +128,18 @@ func (r *TodoRepository) UpdateTodo(ctx context.Context, user *models.User, id s
 	objID, _ := primitive.ObjectIDFromHex(id)
 	uID, _ := primitive.ObjectIDFromHex(user.ID)
 
-	model := toModel(td)
+	update := bson.M{
+		"$set": bson.M{
+			"title":       td.Title,
+			"description": td.Description,
+			"done":        td.Done,
+		},
+	}
 
 	_, err := r.db.UpdateOne(ctx, bson.M{
 		"_id":    objID,
 		"userID": uID,
-	}, bson.M{
-		"$set": model,
-	})
+	}, update)
 
 	if err != nil {
 		return err
