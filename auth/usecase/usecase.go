@@ -15,20 +15,20 @@ type AutoClaims struct {
 	User *models.User `json:"user"`
 }
 
-type AutoUseCase struct {
+type AuthUseCase struct {
 	userRepo       auth.UserRepository
 	hashSalt       string
 	signingKey     []byte
 	expireDuration time.Duration
 }
 
-func NewAutoUseCase(
+func NewAuthUseCase(
 	userRepo auth.UserRepository,
 	hashSalt string,
 	signingKey []byte,
-	tokenTTLSeconds time.Duration) *AutoUseCase {
+	tokenTTLSeconds time.Duration) *AuthUseCase {
 
-	return &AutoUseCase{
+	return &AuthUseCase{
 		userRepo:       userRepo,
 		hashSalt:       hashSalt,
 		signingKey:     signingKey,
@@ -36,7 +36,7 @@ func NewAutoUseCase(
 	}
 }
 
-func (a *AutoUseCase) SignUp(ctx context.Context, username string, password string) error {
+func (a *AuthUseCase) SignUp(ctx context.Context, username string, password string) error {
 	pwd := sha1.New()
 
 	pwd.Write([]byte(password))
@@ -51,7 +51,7 @@ func (a *AutoUseCase) SignUp(ctx context.Context, username string, password stri
 	return a.userRepo.CreateUser(ctx, user)
 }
 
-func (a *AutoUseCase) SignIn(ctx context.Context, username string, password string) (string, error) {
+func (a *AuthUseCase) SignIn(ctx context.Context, username string, password string) (string, error) {
 	pwd := sha1.New()
 
 	pwd.Write([]byte(password))
@@ -77,7 +77,7 @@ func (a *AutoUseCase) SignIn(ctx context.Context, username string, password stri
 	return token.SignedString(a.signingKey)
 }
 
-func (a *AutoUseCase) ParseToken(ctx context.Context, accessToken string) (*models.User, error) {
+func (a *AuthUseCase) ParseToken(ctx context.Context, accessToken string) (*models.User, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &AutoClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

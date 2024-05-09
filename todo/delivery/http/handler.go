@@ -28,6 +28,10 @@ func NewHandler(useCase todo.UseCase) *Handler {
 	}
 }
 
+type getTodoResponse struct {
+	Todo *Todo `json:"todo"`
+}
+
 func (h *Handler) GetTodo(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -40,7 +44,9 @@ func (h *Handler) GetTodo(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, td)
+	ctx.JSON(http.StatusOK, &getTodoResponse{
+		Todo: toTodo(td),
+	})
 }
 
 type getTodosResponse struct {

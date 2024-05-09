@@ -37,7 +37,7 @@ func NewApp() *App {
 	todoRepo := tdmongo.NewTodoRepository(db, viper.GetString("mongo.todo_collection"))
 
 	return &App{
-		authUseCase: authUseCase.NewAutoUseCase(
+		authUseCase: authUseCase.NewAuthUseCase(
 			userRepo,
 			viper.GetString("auth.hash_salt"),
 			[]byte(viper.GetString("auth.signing_key")),
