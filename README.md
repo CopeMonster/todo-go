@@ -40,4 +40,4 @@ This project uses MongoDB as its primary database. There are 2 collections, `use
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
-This project is licensed under the [MIT License]().
+This project is licensed under the [MIT License](https://github.com/CopeMonster/todo-go/blob/master/LICENSE).
