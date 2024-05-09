@@ -5,27 +5,31 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"time"
 	"todo-go/models"
 )
 
 type User struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	Username string             `bson:"username"`
-	Password string             `bson:"password"`
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	Username    string             `bson:"username"`
+	Password    string             `bson:"password"`
+	CreatedTime time.Time          `bson:"createdTime"`
 }
 
 func toUser(user *models.User) *User {
 	return &User{
-		Username: user.Username,
-		Password: user.Password,
+		Username:    user.Username,
+		Password:    user.Password,
+		CreatedTime: user.CreatedTime,
 	}
 }
 
 func toModel(user *User) *models.User {
 	return &models.User{
-		ID:       user.ID.Hex(),
-		Username: user.Username,
-		Password: user.Password,
+		ID:          user.ID.Hex(),
+		Username:    user.Username,
+		Password:    user.Password,
+		CreatedTime: user.CreatedTime,
 	}
 }
 

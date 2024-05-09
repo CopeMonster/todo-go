@@ -43,8 +43,9 @@ func (a *AutoUseCase) SignUp(ctx context.Context, username string, password stri
 	pwd.Write([]byte(a.hashSalt))
 
 	user := &models.User{
-		Username: username,
-		Password: fmt.Sprintf("%x", pwd.Sum(nil)),
+		Username:    username,
+		Password:    fmt.Sprintf("%x", pwd.Sum(nil)),
+		CreatedTime: time.Now(),
 	}
 
 	return a.userRepo.CreateUser(ctx, user)
