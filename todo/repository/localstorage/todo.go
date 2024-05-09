@@ -21,7 +21,7 @@ func NewTodoLocalStorage() *TodoLocalStorage {
 
 func (s *TodoLocalStorage) GetTodo(ctx context.Context, user *models.User, id string) (*models.Todo, error) {
 	for _, td := range s.todos {
-		if td.UserID == user.ID {
+		if td.UserID == user.ID && td.ID == id {
 			return td, nil
 		}
 	}
@@ -30,19 +30,19 @@ func (s *TodoLocalStorage) GetTodo(ctx context.Context, user *models.User, id st
 }
 
 func (s *TodoLocalStorage) GetTodos(ctx context.Context, user *models.User) ([]*models.Todo, error) {
-	todos := make([]*models.Todo, 0)
+	tds := make([]*models.Todo, 0)
 
 	s.mutex.Lock()
 
 	for _, td := range s.todos {
 		if td.UserID == user.ID {
-			todos = append(todos, td)
+			tds = append(tds, td)
 		}
 	}
 
 	s.mutex.Unlock()
 
-	return todos, nil
+	return tds, nil
 }
 
 func (s *TodoLocalStorage) CreateTodo(ctx context.Context, user *models.User, td *models.Todo) error {

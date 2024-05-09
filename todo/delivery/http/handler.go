@@ -3,16 +3,19 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 	"todo-go/auth"
 	"todo-go/models"
 	"todo-go/todo"
 )
 
 type Todo struct {
-	ID          string `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Done        bool   `json:"done"`
+	ID           string    `json:"id"`
+	Title        string    `json:"title"`
+	Description  string    `json:"description"`
+	Done         bool      `json:"done"`
+	CreatedTime  time.Time `json:"createdTime"`
+	ModifiedTime time.Time `json:"modifiedTime"`
 }
 
 type Handler struct {
@@ -121,21 +124,23 @@ func (h *Handler) DeleteTodo(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-func toTodos(todos []*models.Todo) []*Todo {
-	out := make([]*Todo, len(todos))
+func toTodos(tds []*models.Todo) []*Todo {
+	out := make([]*Todo, len(tds))
 
-	for i, t := range todos {
+	for i, t := range tds {
 		out[i] = toTodo(t)
 	}
 
 	return out
 }
 
-func toTodo(todo *models.Todo) *Todo {
+func toTodo(td *models.Todo) *Todo {
 	return &Todo{
-		ID:          todo.ID,
-		Title:       todo.Title,
-		Description: todo.Description,
-		Done:        todo.Done,
+		ID:           td.ID,
+		Title:        td.Title,
+		Description:  td.Description,
+		Done:         td.Done,
+		CreatedTime:  td.CreatedTime,
+		ModifiedTime: td.ModifiedTime,
 	}
 }

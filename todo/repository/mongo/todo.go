@@ -5,42 +5,49 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"time"
 	"todo-go/models"
 )
 
 type Todo struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty"`
-	UserID      primitive.ObjectID `bson:"userID"`
-	Title       string             `bson:"title"`
-	Description string             `bson:"description"`
-	Done        bool               `bson:"done"`
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	UserID       primitive.ObjectID `bson:"userID"`
+	Title        string             `bson:"title"`
+	Description  string             `bson:"description"`
+	Done         bool               `bson:"done"`
+	CreatedTime  time.Time          `bson:"createdTime"`
+	ModifiedTime time.Time          `bson:"modifiedTime"`
 }
 
-func toModel(todo *models.Todo) *Todo {
-	uid, _ := primitive.ObjectIDFromHex(todo.UserID)
+func toModel(td *models.Todo) *Todo {
+	uid, _ := primitive.ObjectIDFromHex(td.UserID)
 
 	return &Todo{
-		UserID:      uid,
-		Title:       todo.Title,
-		Description: todo.Description,
-		Done:        todo.Done,
+		UserID:       uid,
+		Title:        td.Title,
+		Description:  td.Description,
+		Done:         td.Done,
+		CreatedTime:  td.CreatedTime,
+		ModifiedTime: td.ModifiedTime,
 	}
 }
 
-func toTodo(todo *Todo) *models.Todo {
+func toTodo(td *Todo) *models.Todo {
 	return &models.Todo{
-		ID:          todo.ID.Hex(),
-		UserID:      todo.UserID.Hex(),
-		Title:       todo.Title,
-		Description: todo.Description,
-		Done:        todo.Done,
+		ID:           td.ID.Hex(),
+		UserID:       td.UserID.Hex(),
+		Title:        td.Title,
+		Description:  td.Description,
+		Done:         td.Done,
+		CreatedTime:  td.CreatedTime,
+		ModifiedTime: td.ModifiedTime,
 	}
 }
 
-func toTodos(todos []*Todo) []*models.Todo {
-	out := make([]*models.Todo, len(todos))
+func toTodos(tds []*Todo) []*models.Todo {
+	out := make([]*models.Todo, len(tds))
 
-	for i, t := range todos {
+	for i, t := range tds {
 		out[i] = toTodo(t)
 	}
 
@@ -90,15 +97,15 @@ func (r *TodoRepository) GetTodos(ctx context.Context, user *models.User) ([]*mo
 	out := make([]*Todo, 0)
 
 	for cur.Next(ctx) {
-		todo := new(Todo)
+		td := new(Todo)
 
-		err := cur.Decode(todo)
+		err := cur.Decode(td)
 
 		if err != nil {
 			return nil, err
 		}
 
-		out = append(out, todo)
+		out = append(out, td)
 	}
 
 	if err := cur.Err(); err != nil {
@@ -109,8 +116,6 @@ func (r *TodoRepository) GetTodos(ctx context.Context, user *models.User) ([]*mo
 }
 
 func (r *TodoRepository) CreateTodo(ctx context.Context, user *models.User, td *models.Todo) error {
-	td.UserID = user.ID
-
 	model := toModel(td)
 
 	res, err := r.db.InsertOne(ctx, model)
@@ -130,9 +135,10 @@ func (r *TodoRepository) UpdateTodo(ctx context.Context, user *models.User, id s
 
 	update := bson.M{
 		"$set": bson.M{
-			"title":       td.Title,
-			"description": td.Description,
-			"done":        td.Done,
+			"title":        td.Title,
+			"description":  td.Description,
+			"done":         td.Done,
+			"modifiedTime": td.ModifiedTime,
 		},
 	}
 

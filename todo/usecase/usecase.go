@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"time"
 	"todo-go/models"
 	"todo-go/todo"
 )
@@ -26,9 +27,12 @@ func (t TodoUseCase) GetTodos(ctx context.Context, user *models.User) ([]*models
 
 func (t TodoUseCase) CreateTodo(ctx context.Context, user *models.User, title string, description string) error {
 	td := &models.Todo{
-		Title:       title,
-		Description: description,
-		Done:        false,
+		UserID:       user.ID,
+		Title:        title,
+		Description:  description,
+		Done:         false,
+		CreatedTime:  time.Now(),
+		ModifiedTime: time.Now(),
 	}
 
 	return t.todoRepository.CreateTodo(ctx, user, td)
@@ -36,9 +40,10 @@ func (t TodoUseCase) CreateTodo(ctx context.Context, user *models.User, title st
 
 func (t TodoUseCase) UpdateTodo(ctx context.Context, user *models.User, id string, title string, description string, done bool) error {
 	td := &models.Todo{
-		Title:       title,
-		Description: description,
-		Done:        done,
+		Title:        title,
+		Description:  description,
+		Done:         done,
+		ModifiedTime: time.Now(),
 	}
 
 	return t.todoRepository.UpdateTodo(ctx, user, id, td)
